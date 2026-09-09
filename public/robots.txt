@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://aicreditmaster.vercel.app/sitemap.xml
