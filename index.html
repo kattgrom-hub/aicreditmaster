@@ -9,6 +9,11 @@
   <link rel="canonical" href="https://aicreditmaster.vercel.app/" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="theme-color" content="#07111f" />
+  <script>
+  !function(w,d,s,u,n,a,b){if(w[n])return;a=w[n]={q:[],t:+new Date,s:[],o:u,track:function(){a.q.push([+new Date].concat([].slice.call(arguments)))},setScope:function(){a.s=[].slice.call(arguments).filter(function(x){return typeof x==="string"});a.q.push([+new Date,"setScope"].concat(a.s))},scope:function(){var c=[].slice.call(arguments);return{track:function(){a.q.push([+new Date].concat([].slice.call(arguments)).concat([{__scope:c}]))}}}};b=d.createElement(s);b.async=1;b.src=u+"/s.js";d.getElementsByTagName(s)[0].parentNode.insertBefore(b,d.getElementsByTagName(s)[0])}(window,document,"script","https://t.whop.tw","whop");
+  whop.setScope("biz_44e1gA1CIXEc1X");
+  whop.track("page");
+</script>
   <meta property="og:type" content="website" />
   <meta property="og:title" content="AI Credit Mastery — Learn, Plan, Improve" />
   <meta property="og:description" content="Structured credit education, premium tools and AI-assisted action plans." />
@@ -54,15 +59,16 @@
     const $=id=>document.getElementById(id); let authMode='signin';
     const labels={self_paced:'Self-Paced Blueprint',toolkit:'AI Toolkit Bundle',accelerator:'Accelerator Cohort'};
     const params=new URLSearchParams(location.search);
-    function track(name,props={}){try{window.va&&window.va('event',{name,...props})}catch(e){}}
+    function track(name,props={}){try{window.va&&window.va('event',{name,...props})}catch(e){}try{if(window.whop&&typeof window.whop.track==='function')window.whop.track(name,props)}catch(e){}}
     function openAuth(){ $('authOverlay').classList.add('show');track('member_access_opened') }
     function closeAuth(){ $('authOverlay').classList.remove('show') }
     function setMode(mode){ authMode=mode; $('signinTab').className='btn'+(mode==='signin'?' primary':''); $('signupTab').className='btn'+(mode==='signup'?' primary':''); $('submitAuth').textContent=mode==='signin'?'Sign in':'Create account'; $('password').autocomplete=mode==='signin'?'current-password':'new-password'; }
     function message(t){$('authMsg').textContent=t;$('authMsg').classList.remove('hidden')}
     document.querySelectorAll('.checkout').forEach(a=>a.addEventListener('click',()=>track('checkout_clicked',{tier:a.dataset.tier})))
-    if(params.get('checkout')==='success'){$('successBanner').classList.add('show');track('checkout_returned_success');}
+    if('IntersectionObserver' in window){const pricingObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)){track('view_content',{value:197,currency:'AUD'});pricingObserver.disconnect()}},{threshold:0.25});const pricingSection=$('pricing');if(pricingSection)pricingObserver.observe(pricingSection)}
+    if(params.get('checkout')==='success'){$('successBanner').classList.add('show');}
     $('successLogin').onclick=openAuth;$('loginBtn').onclick=openAuth;$('dashboardBtn').onclick=async()=>{const {data}=await db.auth.getSession();data.session?showDashboard():openAuth()};$('closeAuth').onclick=closeAuth;$('signinTab').onclick=()=>setMode('signin');$('signupTab').onclick=()=>setMode('signup');
-    $('authForm').onsubmit=async e=>{e.preventDefault();$('submitAuth').disabled=true;$('authMsg').classList.add('hidden');const email=$('email').value,password=$('password').value;let r=authMode==='signin'?await db.auth.signInWithPassword({email,password}):await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+'/#dashboard'}});$('submitAuth').disabled=false;if(r.error)return message(r.error.message);if(authMode==='signup'){track('account_created');return message('Check your email to confirm your AI Credit Mastery account. Then return here and sign in.')}track('member_signed_in');closeAuth();await showDashboard()};
+    $('authForm').onsubmit=async e=>{e.preventDefault();$('submitAuth').disabled=true;$('authMsg').classList.add('hidden');const email=$('email').value,password=$('password').value;let r=authMode==='signin'?await db.auth.signInWithPassword({email,password}):await db.auth.signUp({email,password,options:{emailRedirectTo:location.origin+'/#dashboard'}});$('submitAuth').disabled=false;if(r.error)return message(r.error.message);if(authMode==='signup'){if(r.data?.user)track('complete_registration',{event_id:'registration_'+r.data.user.id});return message('Check your email to confirm your AI Credit Mastery account. Then return here and sign in.')}track('member_signed_in');closeAuth();await showDashboard()};
     $('signOutBtn').onclick=async()=>{await db.auth.signOut();location.hash='';$('dashboard').classList.remove('show');$('publicSite').classList.remove('hidden')};$('backToPricing').onclick=()=>{$('dashboard').classList.remove('show');$('publicSite').classList.remove('hidden')};
     async function showDashboard(){const {data:{user}}=await db.auth.getUser();if(!user)return openAuth();location.hash='dashboard';$('publicSite').classList.add('hidden');$('dashboard').classList.add('show');$('memberEmail').textContent='Signed in as '+(user.email||'member');$('modules').innerHTML='<div class="card">Loading your access…</div>';
       const [ent,mods,less,res]=await Promise.all([db.from('acm_entitlements').select('tier,status').eq('status','active').limit(1).maybeSingle(),db.from('acm_modules').select('id,position,title,summary,minimum_tier,estimated_minutes').order('position'),db.from('acm_lessons').select('id,module_id,position,title,objective,content_md,action_steps,minimum_tier').order('position'),db.from('acm_resources').select('id,slug,title,resource_type,description,content_md,minimum_tier').order('created_at')]);
